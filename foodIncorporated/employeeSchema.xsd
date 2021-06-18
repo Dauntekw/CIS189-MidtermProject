@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" >
+  <!--CIS 189 Term Project Daunte Williamson 11/12/2020-->
+  <xsd:element name="Employees" type="rootType"/>
+
+  <xsd:complexType name="rootType">
+    <xsd:sequence>
+      <xsd:element name="employee" type="employeeType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="employeeType">
+    <xsd:sequence>
+      <xsd:element name="firstName" type="nameType"/>
+      <xsd:element name="lastName" type="nameType"/>
+      <xsd:element name="employeeId" type="idType"/>
+      <xsd:element name="department" type="departmentType"/>
+      <xsd:element name="position" type="positionType"/>
+      <xsd:element name="wageType" type="wageType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:simpleType name="nameType">
+    <xsd:restriction base="xsd:string">
+      <xsd:minLength value="1"/>
+      <xsd:maxLength value="50"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="idType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[0-9]{5}[A-Z]{2}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:complexType name="departmentType">
+    <xsd:choice>
+      <xsd:element name="Accounting"/>
+      <xsd:element name="Sales"/>
+      <xsd:element name="Customer_Support"/>
+      <xsd:element name="Quality_Assurance"/>
+      <xsd:element name="Research"/>
+      <xsd:element name="Management"/>
+      <xsd:element name="Human_Resources"/>
+    </xsd:choice>
+  </xsd:complexType>
+
+  <xsd:complexType name="positionType">
+    <xsd:choice>
+      <xsd:element name="Associate"/>
+      <xsd:element name="Auditor"/>
+      <xsd:element name="Team_Coordinator"/>
+      <xsd:element name="Department_Lead"/>
+      <xsd:element name="Middle_Manager"/>
+      <xsd:element name="Project_Lead"/>
+      <xsd:element name="Chief_Executive_Officer"/>
+      <xsd:element name="President"/>
+      <xsd:element name="Vice_President"/>
+      <xsd:element name="Secretary"/>
+      <xsd:element name="Founder"/>
+      <xsd:element name="Cofounder"/>
+    </xsd:choice>
+  </xsd:complexType>
+
+  <xsd:complexType name="wageType">
+    <xsd:choice>
+      <xsd:element name="hourly" type="hourlyType"/>
+      <xsd:element name="salary" type="salaryType"/>
+    </xsd:choice>
+  </xsd:complexType>
+
+  <xsd:simpleType name="hourlyType">
+    <xsd:restriction base="xsd:double">
+      <xsd:minInclusive value="10.00"/>
+      <xsd:maxInclusive value="35.00"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="salaryType">
+    <xsd:restriction base="xsd:double">
+      <xsd:minInclusive value="76800.00"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

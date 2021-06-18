@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<!--CIS 189 Term Project Daunte Williamson 11/14/2020-->
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="main.css"/>
+    <title>Employee Directory - Food Inc.</title>
+</head>
+<body>
+    <div class="header">Food Inc.</div>
+    <div class="row">
+        <div class="column side"></div>
+        <div class="column middle">
+            <h1 style="text-align:center">Employee Directory</h1>
+            <p id="description">Click on a column header to sort entries alphabetically or numerically for wages.</p>
+            <table id="empTable">
+                <tr id="sortingRow">
+                    <th onclick="sortTableByHeader(0)">First Name</th>
+                    <th onclick="sortTableByHeader(1)">Last Name</th>
+                    <th onclick="sortTableByHeader(2)">Employee ID</th>
+                    <th onclick="sortTableByHeader(3)">Department</th>
+                    <th onclick="sortTableByHeader(4)">Position</th>
+                    <th onclick="sortTableByHeader(5)">Wage (hourly/salary)</th>
+                </tr>
+            </table>
+        </div>
+        <div class="column side"></div>
+    </div>
+
+    <script>
+        var fileName = "employees.xml";
+        var xhttp;
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                readXMLDOC(this);
+            }
+        };
+        xhttp.open("GET", fileName, true);
+        xhttp.send();
+
+        function readXMLDOC(xml) {
+            var x, i, xmlDoc;
+            var table = document.getElementById("empTable");
+            xmlDoc = xml.responseXML;
+            x = xmlDoc.documentElement.childNodes;
+            //Navigate through root "Employees" element to find children
+            for (i = 0; i < x.length; i++) {
+                if (x[i].nodeName == "employee") {
+                    var row = table.insertRow(1);
+                    //Navigate through single employee information (child nodes)
+                    var y = x[i].childNodes;
+                    for (j = 0; j < y.length; j++) {
+                        if (y[j].nodeName != "#text") {
+                            //Skip unneccesary #text elements
+                            if (y[j].nodeName == "firstName") {
+                                //node isnt a choice element. Display text value
+                                var fNameCell = row.insertCell(0);
+                                fNameCell.innerHTML = y[j].childNodes[0].nodeValue;
+                            }
+                            else if (y[j].nodeName == "lastName") {
+                                var lNameCell = row.insertCell(1);
+                                lNameCell.innerHTML = y[j].childNodes[0].nodeValue;
+                            }
+                            else if (y[j].nodeName == "employeeId") {
+                                var empIdCell = row.insertCell(2);
+                                empIdCell.innerHTML = y[j].childNodes[0].nodeValue;
+                            }
+                            else if (y[j].nodeName == "department") {
+                                let name = y[j].childNodes[1].nodeName;
+                                let formatedText = fixSpacing(name);
+                                var departmentCell = row.insertCell(3);
+                                departmentCell.innerHTML = formatedText;
+                            }
+                            else if (y[j].nodeName == "position") {
+                                let name = y[j].childNodes[1].nodeName;
+                                let formatedText = fixSpacing(name);
+                                var positionCell = row.insertCell(4);
+                                positionCell.innerHTML = formatedText;
+                            }
+                            else {
+                                //node is wageType, display chosen element name and child text node in desired format
+                                var z = y[j].childNodes[1];
+                                var wageCell = row.insertCell(5);
+                                wageCell.innerHTML = y[j].childNodes[1].nodeName + ": $" + numberWithCommas(z.childNodes[0].nodeValue);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //code found from https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        //Replace all '_' characters with spaces
+        function fixSpacing(text) {
+            var output = text;
+            if (text.includes("_")) {
+                output = text.replace(/\_+/g, " ");
+            }
+            return output;
+        }
+        //code for sorting hmtl tables modified from https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_sort_table_desc
+        function sortTableByHeader(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("empTable");
+            switching = true;
+            dir = "asc";
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                //Loop through all table rows (except table headers)
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    //get current row and next row for comparison
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    var xSplit = x.innerHTML.replace(/\D/g, '');
+                    var ySplit = y.innerHTML.replace(/\D/g, '');
+                    var xNumber = parseFloat(xSplit);
+                    var yNumber = parseFloat(ySplit);
+                    //check if the two rows should switch place based on filter order (ascending or descending)
+                    if (dir == "asc") {
+                        if (n != 5) {
+                            //Column isn't wage. Compare for alphabetical sorting
+                            if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                                //if so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                        else {
+                            //Column is wage. Compare for numerical sorting
+                            if (xNumber > yNumber) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+
+                    } else if (dir == "desc") {
+                        if (n != 5) {
+                            if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                                //if so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                        else {
+                            if (xNumber < yNumber) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+
+                    }
+                }
+                if (shouldSwitch) {
+                    //execute row switch and mark as complete
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
